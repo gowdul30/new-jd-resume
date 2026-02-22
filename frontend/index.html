@@ -1,303 +1,403 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResumeAI — Deep Resume Analysis & ATS Optimization</title>
-  <meta name="description"
-    content="Upload your resume, paste a job description, and get a deep AI analysis with specific suggestions to beat the ATS and improve your impact." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Optimizer | Premium ATS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#D90429',
+              dark: '#A60320',
+              light: '#EF233C',
+            }
+          },
+          animation: {
+            pulseBox: 'pulseBox 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            pulseBox: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(217, 4, 41, 0.4)' },
+              '50%': { boxShadow: '0 0 0 10px rgba(217, 4, 41, 0)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dark .glassmorphism {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .doc-preview {
+      background-color: #ffffff;
+      color: #1e293b;
+      min-height: 800px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      padding: 2.5rem;
+      font-family: 'Times New Roman', serif;
+      position: relative;
+      border-radius: 4px;
+    }
+
+    .dark .doc-preview {
+      background-color: #f8fafc;
+      color: #0f172a;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .upload-zone {
+      transition: all 0.3s ease;
+    }
+
+    .upload-zone:hover {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      border-color: #D90429;
+    }
+
+    .dark .upload-zone:hover {
+      box-shadow: 0 0 20px rgba(217, 4, 41, 0.2);
+    }
+
+    .gauge-svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-circle {
+      transition: stroke-dashoffset 1s ease-out;
+    }
+  </style>
 </head>
 
-<body>
-  <div class="bg-orbs" aria-hidden="true">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
+<body
+  class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
 
-  <header class="header">
-    <div class="logo">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" class="logo-icon">
-        <rect width="28" height="28" rx="8" fill="url(#logoGrad)" />
-        <path d="M8 8h12M8 13h8M8 18h10" stroke="white" stroke-width="2" stroke-linecap="round" />
-        <circle cx="21" cy="18" r="4" fill="#22d3ee" stroke="white" stroke-width="1.5" />
-        <path d="M20 18l1 1 2-2" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-        <defs>
-          <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366f1" />
-            <stop offset="1" stop-color="#8b5cf6" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <span class="logo-text">ResumeAI</span>
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 glassmorphism border-b border-transparent dark:border-slate-800 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xl">R</div>
+        <span class="font-bold text-xl tracking-tight">Resume<span class="text-brand">AI</span></span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block text-yellow-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+      </div>
     </div>
-    <div class="header-badge">AI Career Intelligence · llama-3.3-70b</div>
-  </header>
+  </nav>
 
-  <main class="main">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div id="section-hero" class="text-center max-w-3xl mx-auto mb-16">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-sm font-semibold mb-6">
+        <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span> Intelligent Optimization
+      </div>
+      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">
+        Optimize Your Resume.<br />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-brand-light">Master the ATS.</span>
+      </h1>
+      <p class="text-lg text-slate-600 dark:text-slate-400">
+        Upload your resume, paste the job URL, and get a tailored, hallucination-free AI rewrite that passes Applicant
+        Tracking Systems with flying colors.
+      </p>
+    </div>
 
-    <!-- ====== HERO ====== -->
-    <section class="hero" id="section-hero">
-      <div class="hero-tag">Deep Recruitment Analysis</div>
-      <h1 class="hero-title">Optimize Your Profile.<br /><span class="gradient-text">Master the ATS.</span></h1>
-      <p class="hero-sub">Upload your resume and the job description — our AI identifies skill gaps and provides
-        precision-engineered suggestions to elevate your candidacy.</p>
-    </section>
+    <div id="trust-factors" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
+      <div class="glassmorphism rounded-xl p-6 flex flex-col items-center text-center">
+        <div class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2">ATS Optimized</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Our engine parses your resume exactly like enterprise
+          tracking systems to guarantee visibility.</p>
+      </div>
+      <div class="glassmorphism rounded-xl p-6 flex flex-col items-center text-center">
+        <div class="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2">Hallucination-Free AI</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">We enhance your real experience without inventing skills
+          or fabricating timelines.</p>
+      </div>
+    </div>
 
-    <!-- ====== UPLOAD STATE ====== -->
-    <section class="card upload-card" id="section-upload">
-      <div class="card-grid">
+    <!-- Upload Workspace -->
+    <div id="section-upload"
+      class="max-w-4xl mx-auto glassmorphism rounded-2xl p-8 shadow-xl dark:bg-slate-900 border dark:border-slate-800">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 relative">
 
         <!-- Left: Resume Upload -->
-        <div class="upload-col">
-          <div class="col-label">
-            <span class="col-num">01</span>
-            <span>Your Resume</span>
+        <div>
+          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <span
+              class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-sm">1</span>
+            Your Resume
+          </h3>
+          <div id="dropzone"
+            class="upload-zone border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center cursor-pointer flex flex-col items-center justify-center h-48 bg-white/50 dark:bg-slate-950/50">
+            <svg class="w-10 h-10 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <p class="font-medium">Drag & Drop Resume</p>
+            <p class="text-sm text-slate-500 mt-1">or click to browse</p>
+            <p class="text-xs text-slate-400 mt-2">PDF/DOCX up to 10MB</p>
           </div>
-          <div class="dropzone" id="dropzone" role="button" aria-label="Upload resume file" tabindex="0">
-            <div class="drop-icon" id="dropIconWrap">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="12" fill="rgba(99,102,241,0.15)" />
-                <path d="M20 10v14M14 16l6-6 6 6" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"
-                  stroke-linejoin="round" />
-                <path d="M12 30h16" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" />
+          <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx">
+
+          <div id="filePreview"
+            class="hidden h-48 border border-slate-200 dark:border-slate-700 rounded-xl p-6 bg-white dark:bg-slate-800 flex flex-col items-center justify-center relative">
+            <button id="fileRemove" class="absolute top-3 right-3 text-slate-400 hover:text-brand transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
-            </div>
-            <p class="drop-primary">Drag &amp; Drop your resume here</p>
-            <p class="drop-secondary">or <label for="fileInput" class="file-browse">browse files</label></p>
-            <p class="drop-hint">PDF or DOCX · Max 10MB</p>
-            <input type="file" id="fileInput" accept=".pdf,.docx" hidden />
-          </div>
-          <div class="file-preview hidden" id="filePreview">
-            <div class="file-preview-icon" id="fileTypeIcon">📄</div>
-            <div class="file-preview-info">
-              <span class="file-name" id="fileName">resume.pdf</span>
-              <span class="file-size" id="fileSize">2.3 MB</span>
-            </div>
-            <button class="file-remove" id="fileRemove" aria-label="Remove file">✕</button>
+            </button>
+            <div id="fileTypeIcon" class="text-4xl mb-2">📄</div>
+            <div id="fileName" class="font-medium text-center truncate w-full px-4">resume.pdf</div>
+            <div id="fileSize" class="text-sm text-slate-500">2.4 MB</div>
           </div>
         </div>
 
         <!-- Divider -->
-        <div class="col-divider" aria-hidden="true">
-          <div class="divider-line"></div>
-          <div class="divider-icon">+</div>
-          <div class="divider-line"></div>
+        <div
+          class="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 z-10">
+          <div class="w-px h-16 bg-gradient-to-b from-transparent to-slate-300 dark:to-slate-700"></div>
+          <div
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 font-bold text-lg">
+            +</div>
+          <div class="w-px h-16 bg-gradient-to-t from-transparent to-slate-300 dark:to-slate-700"></div>
         </div>
 
         <!-- Right: JD Input -->
-        <div class="upload-col">
-          <div class="col-label">
-            <span class="col-num">02</span>
-            <span>Job Description</span>
+        <div>
+          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <span
+              class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-sm">2</span>
+            Job Description
+          </h3>
+
+          <div
+            class="bg-white/50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-700 p-1 mb-4 flex">
+            <button id="tab-url" data-tab="url"
+              class="flex-1 py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white transition-all">🔗
+              Paste URL</button>
+            <button id="tab-paste" data-tab="paste"
+              class="flex-1 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all">📋
+              Manual Paste</button>
           </div>
 
-          <div class="jd-tabs">
-            <button class="jd-tab active" id="tab-url" data-tab="url">🔗 URL</button>
-            <button class="jd-tab" id="tab-paste" data-tab="paste">📋 Paste Text</button>
+          <div id="jd-url-panel" class="h-32 flex flex-col justify-center">
+            <input type="url" id="jdUrl" placeholder="https://linkedin.com/jobs/..."
+              class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           </div>
 
-          <div id="jd-url-panel" class="jd-panel">
-            <input type="url" id="jdUrl" class="text-input" placeholder="https://www.linkedin.com/jobs/view/..."
-              autocomplete="off" />
-            <p class="input-hint">Works with LinkedIn, Indeed, Greenhouse, Lever &amp; more. Falls back to paste if
-              blocked.</p>
-          </div>
-
-          <div id="jd-paste-panel" class="jd-panel hidden">
-            <textarea id="jdText" class="text-input textarea" placeholder="Paste the full job description here..."
-              rows="7"></textarea>
+          <div id="jd-paste-panel" class="hidden h-32 flex flex-col justify-center">
+            <textarea id="jdText" placeholder="Paste full JD here..."
+              class="w-full h-full resize-none bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"></textarea>
           </div>
         </div>
       </div>
 
-      <div class="submit-row">
-        <button class="btn-primary" id="btnOptimize" disabled>
-          <span class="btn-text">⚡ Analyze & Score Resume</span>
-          <span class="btn-arrow">→</span>
+      <!-- Action Button -->
+      <div class="mt-10 flex flex-col items-center">
+        <button id="btnOptimize" disabled
+          class="group relative px-8 py-4 bg-brand hover:bg-brand-dark disabled:bg-slate-400 disabled:cursor-not-allowed text-white text-lg font-bold rounded-xl transition-all shadow-lg animate-[pulseBox_2s_cubic-bezier(0.4,0,0.6,1)_infinite] disabled:animate-none flex items-center gap-3 w-full sm:w-auto overflow-hidden">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            ⚡ <span id="btnText">Optimize & Score My Resume</span>
+          </span>
+          <div
+            class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+          </div>
         </button>
-        <p class="submit-hint" id="submitHint">Upload a resume and add a job description to get started</p>
+        <p id="submitHint" class="mt-4 text-sm text-slate-500 dark:text-slate-400">Waiting for files...</p>
       </div>
-    </section>
-
-    <!-- ====== PROCESSING STATE ====== -->
-    <section class="card processing-card hidden" id="section-processing">
-      <div class="processing-inner">
-        <div class="processing-spinner" aria-label="Processing">
-          <svg class="spinner-ring" viewBox="0 0 60 60">
-            <circle cx="30" cy="30" r="26" stroke="rgba(99,102,241,0.2)" stroke-width="4" fill="none" />
-            <circle cx="30" cy="30" r="26" stroke="url(#spinGrad)" stroke-width="4" fill="none"
-              stroke-dasharray="50 113" stroke-linecap="round" class="spinner-arc" />
-            <defs>
-              <linearGradient id="spinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#6366f1" />
-                <stop offset="100%" stop-color="#22d3ee" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <h2 class="processing-title">Optimizing Your Resume</h2>
-        <p class="processing-step" id="processingStep">Analyzing job description…</p>
-
-        <div class="step-progress">
-          <div class="step-item" id="step-1" data-step="1">
-            <div class="step-dot"></div>
-            <span>Parsing job description</span>
-          </div>
-          <div class="step-item" id="step-2" data-step="2">
-            <div class="step-dot"></div>
-            <span>Extracting resume sections</span>
-          </div>
-          <div class="step-item" id="step-3" data-step="3">
-            <div class="step-dot"></div>
-            <span>AI surgical rewrite (Groq)</span>
-          </div>
-          <div class="step-item" id="step-4" data-step="4">
-            <div class="step-dot"></div>
-            <span>Injecting into original format</span>
-          </div>
-          <div class="step-item" id="step-5" data-step="5">
-            <div class="step-dot"></div>
-            <span>Calculating ATS score</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====== RESULT STATE ====== -->
-    <section class="card result-card hidden" id="section-result">
-      <div class="result-header">
-        <div class="result-badge">✅ Optimization Complete</div>
-        <p class="result-job-title" id="resultJobTitle">Software Engineer · Google</p>
-      </div>
-
-      <div class="result-grid">
-        <!-- Score Gauge -->
-        <div class="score-section">
-          <div class="score-gauge-wrap">
-            <svg class="score-gauge" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" />
-              <circle cx="100" cy="100" r="80" fill="none" stroke="url(#scoreGrad)" stroke-width="16"
-                stroke-linecap="round" stroke-dasharray="0 502" id="scoreArc" class="score-arc"
-                transform="rotate(-90 100 100)" />
-              <defs>
-                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#6366f1" />
-                  <stop offset="50%" stop-color="#8b5cf6" />
-                  <stop offset="100%" stop-color="#22d3ee" />
-                </linearGradient>
-              </defs>
-              <text x="100" y="95" text-anchor="middle" class="gauge-score" id="gaugeScore">0</text>
-              <text x="100" y="118" text-anchor="middle" class="gauge-label">ATS Score</text>
-            </svg>
-          </div>
-
-          <div class="prospective-badge hidden" id="prospectiveBadge">
-            <div class="pb-accent"></div>
-            <div class="pb-content">
-              <span class="pb-label">Prospective Score</span>
-              <span class="pb-value" id="prospectiveScore">0</span>
-            </div>
-            <div class="pb-hint">Estimated score if you apply all suggested rewrites</div>
-          </div>
-
-          <div class="score-breakdown">
-            <div class="score-bar-item">
-              <div class="score-bar-label">
-                <span>Keyword Match</span>
-                <span id="scoreKeyword">0/40</span>
-              </div>
-              <div class="score-bar-track">
-                <div class="score-bar-fill" id="barKeyword" style="width:0%"></div>
-              </div>
-            </div>
-            <div class="score-bar-item">
-              <div class="score-bar-label">
-                <span>Role Relevancy</span>
-                <span id="scoreRelevancy">0/40</span>
-              </div>
-              <div class="score-bar-track">
-                <div class="score-bar-fill relevancy" id="barRelevancy" style="width:0%"></div>
-              </div>
-            </div>
-            <div class="score-bar-item">
-              <div class="score-bar-label">
-                <span>Format Simplicity</span>
-                <span id="scoreFormat">0/20</span>
-              </div>
-              <div class="score-bar-track">
-                <div class="score-bar-fill format" id="barFormat" style="width:0%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Feedback + Keywords -->
-        <div class="result-details">
-          <div class="feedback-card">
-            <h3 class="detail-title">AI Feedback</h3>
-            <p class="feedback-text" id="resultFeedback">Your resume has been optimized.</p>
-          </div>
-
-          <div class="keywords-grid">
-            <div class="keyword-box matched">
-              <h4 class="keyword-title">✅ Matched Keywords</h4>
-              <div class="keyword-tags" id="matchedKeywords"></div>
-            </div>
-            <div class="keyword-box missing">
-              <h4 class="keyword-title">⚠️ Missing Keywords</h4>
-              <div class="keyword-tags" id="missingKeywords"></div>
-            </div>
-          </div>
-
-          <div class="sections-found">
-            <span class="sections-badge" id="sectionsFound">0 blocks analyzed</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Suggestions Section -->
-      <div class="suggestions-container" id="suggestionsContainer">
-        <div class="suggestion-group">
-          <h3 class="detail-title">💡 Missing Skills from JD</h3>
-          <div class="keyword-tags" id="analysisMissingSkills"></div>
-        </div>
-
-        <div class="suggestion-group">
-          <h3 class="detail-title">✨ Recommended Summary Improvements</h3>
-          <div id="summarySuggestionsList" class="suggestions-list"></div>
-        </div>
-
-        <div class="suggestion-group">
-          <h3 class="detail-title">🚀 Experience Optimization Suggestions</h3>
-          <div id="experienceSuggestionsList" class="suggestions-list"></div>
-        </div>
-      </div>
-
-      <div class="result-actions">
-        <button class="btn-ghost" id="btnReset">↩ Analyze Another Resume</button>
-      </div>
-    </section>
-
-    <!-- ====== ERROR STATE ====== -->
-    <div class="error-toast hidden" id="errorToast" role="alert">
-      <span class="error-icon">⚠</span>
-      <span class="error-message" id="errorMessage">Something went wrong.</span>
-      <button class="error-close" id="errorClose">✕</button>
     </div>
 
+    <!-- Processing State -->
+    <div id="section-processing" class="hidden max-w-lg mx-auto text-center py-20">
+      <div class="relative w-24 h-24 mx-auto mb-8">
+        <svg class="animate-spin w-full h-full text-brand" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center text-brand text-2xl">✨</div>
+      </div>
+      <h2 class="text-2xl font-bold mb-2">Rewriting for Success</h2>
+      <p id="processingStep" class="text-brand font-medium">Analyzing job description...</p>
+
+      <div class="mt-8 space-y-3 text-left max-w-sm mx-auto">
+        <div id="step-1" class="flex items-center gap-3 text-slate-500 transition-colors duration-300">
+          <div class="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 step-indicator"></div>
+          <span>Parsing job description</span>
+        </div>
+        <div id="step-2" class="flex items-center gap-3 text-slate-500 transition-colors duration-300">
+          <div class="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 step-indicator"></div>
+          <span>Extracting resume sections</span>
+        </div>
+        <div id="step-3" class="flex items-center gap-3 text-slate-500 transition-colors duration-300">
+          <div class="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 step-indicator"></div>
+          <span>AI surgical rewrite</span>
+        </div>
+        <div id="step-4" class="flex items-center gap-3 text-slate-500 transition-colors duration-300">
+          <div class="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 step-indicator"></div>
+          <span>Formatting document</span>
+        </div>
+        <div id="step-5" class="flex items-center gap-3 text-slate-500 transition-colors duration-300">
+          <div class="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 step-indicator"></div>
+          <span>Calculating ATS score</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Dashboard -->
+    <div id="section-result" class="hidden">
+      <div
+        class="glassmorphism rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 dark:bg-slate-900 border dark:border-slate-800">
+        <div class="flex-1">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-sm font-bold mb-2 border border-emerald-500/20">
+            ✓ Optimization Complete
+          </div>
+          <h2 id="resultJobTitle" class="text-2xl font-bold">Targeted Role</h2>
+          <p id="resultFeedback" class="text-slate-500 mt-1">Review your updated document below.</p>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <div class="relative w-32 h-32">
+            <svg class="gauge-svg w-full h-full" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8"
+                class="text-slate-200 dark:text-slate-800" />
+              <circle id="scoreArc" cx="50" cy="50" r="45" fill="none" class="progress-circle stroke-brand"
+                stroke-width="8" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="gaugeScore" class="text-3xl font-black">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">ATS Score</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 flex justify-end">
+          <button id="btnReset"
+            class="px-6 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors">
+            Start Over
+          </button>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Previewer -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <!-- Original Resume -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-slate-500 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+            Original Resume
+          </h3>
+          <div
+            class="doc-preview text-sm leading-relaxed overflow-y-auto max-h-[800px] border border-slate-200 dark:border-slate-800 rounded-xl"
+            id="originalPreview">
+            <div class="animate-pulse space-y-4">
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4 mb-8"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optimized Version -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-brand flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+              </path>
+            </svg>
+            Optimized Version
+          </h3>
+          <div
+            class="doc-preview text-sm leading-relaxed overflow-y-auto max-h-[800px] border-2 border-brand/20 rounded-xl relative"
+            id="optimizedPreview">
+            <div class="absolute top-0 right-0 py-1 px-3 bg-brand text-white text-xs font-bold rounded-bl-lg">AI
+              Enhanced</div>
+            <div class="animate-pulse space-y-4">
+              <div class="h-4 bg-brand/20 rounded w-1/4 mb-8"></div>
+              <div class="h-3 bg-brand/10 rounded w-full"></div>
+              <div class="h-3 bg-brand/10 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden">
+        <span id="scoreKeyword"></span><span id="scoreRelevancy"></span><span id="scoreFormat"></span>
+        <div id="barKeyword"></div>
+        <div id="barRelevancy"></div>
+        <div id="barFormat"></div>
+        <div id="matchedKeywords"></div>
+        <div id="missingKeywords"></div>
+        <div id="analysisMissingSkills"></div>
+        <div id="summarySuggestionsList"></div>
+        <div id="experienceSuggestionsList"></div>
+        <div id="sectionsFound"></div>
+        <div id="prospectiveBadge"></div>
+        <div id="prospectiveScore"></div>
+      </div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="errorToast"
+      class="hidden fixed bottom-4 right-4 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 transition-opacity">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span id="errorMessage" class="font-medium">Something went wrong.</span>
+      <button id="errorClose" class="ml-4 hover:text-red-200"><svg class="w-5 h-5" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg></button>
+    </div>
   </main>
 
-  <footer class="footer">
-    <p>ResumeAI · Deep Analysis powered by <a href="https://console.groq.com" target="_blank" rel="noopener">Groq</a>
-      · Your personal AI recuritment consultant</p>
+  <footer class="mt-12 py-8 border-t border-slate-200 dark:border-slate-800 text-center">
+    <p class="text-sm text-slate-500">ResumeAI · Premium ATS Optimization Engine</p>
   </footer>
 
   <script src="./app.js"></script>
