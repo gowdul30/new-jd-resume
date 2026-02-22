@@ -44,6 +44,10 @@ if os.path.exists(FRONTEND_DIR):
     # Catch-all for SPA routing
     @app.get("/{full_path:path}")
     async def spa_fallback(full_path: str):
+        file_path = os.path.join(FRONTEND_DIR, full_path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
         index = os.path.join(FRONTEND_DIR, "index.html")
         if os.path.exists(index):
             return FileResponse(index)
