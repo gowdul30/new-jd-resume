@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumeAI — Zero-Format-Loss Resume Tailor & ATS Scorer</title>
+  <meta name="description"
+    content="Upload your resume, paste a job description, and get a surgically optimized resume with an ATS match score — without losing a single format element." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <header class="header">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" class="logo-icon">
+        <rect width="28" height="28" rx="8" fill="url(#logoGrad)" />
+        <path d="M8 8h12M8 13h8M8 18h10" stroke="white" stroke-width="2" stroke-linecap="round" />
+        <circle cx="21" cy="18" r="4" fill="#22d3ee" stroke="white" stroke-width="1.5" />
+        <path d="M20 18l1 1 2-2" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6366f1" />
+            <stop offset="1" stop-color="#8b5cf6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-text">ResumeAI</span>
+    </div>
+    <div class="header-badge">Powered by Groq · llama-3.3-70b</div>
+  </header>
+
+  <main class="main">
+
+    <!-- ====== HERO ====== -->
+    <section class="hero" id="section-hero">
+      <div class="hero-tag">Zero-Format-Loss Technology</div>
+      <h1 class="hero-title">Tailor Your Resume.<br /><span class="gradient-text">Beat the ATS.</span></h1>
+      <p class="hero-sub">Upload your resume, paste the job description — our AI surgically rewrites your content while
+        preserving every font, margin, and layout detail.</p>
+    </section>
+
+    <!-- ====== UPLOAD STATE ====== -->
+    <section class="card upload-card" id="section-upload">
+      <div class="card-grid">
+
+        <!-- Left: Resume Upload -->
+        <div class="upload-col">
+          <div class="col-label">
+            <span class="col-num">01</span>
+            <span>Your Resume</span>
+          </div>
+          <div class="dropzone" id="dropzone" role="button" aria-label="Upload resume file" tabindex="0">
+            <div class="drop-icon" id="dropIconWrap">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="12" fill="rgba(99,102,241,0.15)" />
+                <path d="M20 10v14M14 16l6-6 6 6" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M12 30h16" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" />
+              </svg>
+            </div>
+            <p class="drop-primary">Drag &amp; Drop your resume here</p>
+            <p class="drop-secondary">or <label for="fileInput" class="file-browse">browse files</label></p>
+            <p class="drop-hint">PDF or DOCX · Max 10MB</p>
+            <input type="file" id="fileInput" accept=".pdf,.docx" hidden />
+          </div>
+          <div class="file-preview hidden" id="filePreview">
+            <div class="file-preview-icon" id="fileTypeIcon">📄</div>
+            <div class="file-preview-info">
+              <span class="file-name" id="fileName">resume.pdf</span>
+              <span class="file-size" id="fileSize">2.3 MB</span>
+            </div>
+            <button class="file-remove" id="fileRemove" aria-label="Remove file">✕</button>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="col-divider" aria-hidden="true">
+          <div class="divider-line"></div>
+          <div class="divider-icon">+</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Right: JD Input -->
+        <div class="upload-col">
+          <div class="col-label">
+            <span class="col-num">02</span>
+            <span>Job Description</span>
+          </div>
+
+          <div class="jd-tabs">
+            <button class="jd-tab active" id="tab-url" data-tab="url">🔗 URL</button>
+            <button class="jd-tab" id="tab-paste" data-tab="paste">📋 Paste Text</button>
+          </div>
+
+          <div id="jd-url-panel" class="jd-panel">
+            <input type="url" id="jdUrl" class="text-input" placeholder="https://www.linkedin.com/jobs/view/..."
+              autocomplete="off" />
+            <p class="input-hint">Works with LinkedIn, Indeed, Greenhouse, Lever &amp; more. Falls back to paste if
+              blocked.</p>
+          </div>
+
+          <div id="jd-paste-panel" class="jd-panel hidden">
+            <textarea id="jdText" class="text-input textarea" placeholder="Paste the full job description here..."
+              rows="7"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-primary" id="btnOptimize" disabled>
+          <span class="btn-text">⚡ Optimize &amp; Score Resume</span>
+          <span class="btn-arrow">→</span>
+        </button>
+        <p class="submit-hint" id="submitHint">Upload a resume and add a job description to get started</p>
+      </div>
+    </section>
+
+    <!-- ====== PROCESSING STATE ====== -->
+    <section class="card processing-card hidden" id="section-processing">
+      <div class="processing-inner">
+        <div class="processing-spinner" aria-label="Processing">
+          <svg class="spinner-ring" viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="26" stroke="rgba(99,102,241,0.2)" stroke-width="4" fill="none" />
+            <circle cx="30" cy="30" r="26" stroke="url(#spinGrad)" stroke-width="4" fill="none"
+              stroke-dasharray="50 113" stroke-linecap="round" class="spinner-arc" />
+            <defs>
+              <linearGradient id="spinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#6366f1" />
+                <stop offset="100%" stop-color="#22d3ee" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 class="processing-title">Optimizing Your Resume</h2>
+        <p class="processing-step" id="processingStep">Analyzing job description…</p>
+
+        <div class="step-progress">
+          <div class="step-item" id="step-1" data-step="1">
+            <div class="step-dot"></div>
+            <span>Parsing job description</span>
+          </div>
+          <div class="step-item" id="step-2" data-step="2">
+            <div class="step-dot"></div>
+            <span>Extracting resume sections</span>
+          </div>
+          <div class="step-item" id="step-3" data-step="3">
+            <div class="step-dot"></div>
+            <span>AI surgical rewrite (Groq)</span>
+          </div>
+          <div class="step-item" id="step-4" data-step="4">
+            <div class="step-dot"></div>
+            <span>Injecting into original format</span>
+          </div>
+          <div class="step-item" id="step-5" data-step="5">
+            <div class="step-dot"></div>
+            <span>Calculating ATS score</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== RESULT STATE ====== -->
+    <section class="card result-card hidden" id="section-result">
+      <div class="result-header">
+        <div class="result-badge">✅ Optimization Complete</div>
+        <p class="result-job-title" id="resultJobTitle">Software Engineer · Google</p>
+      </div>
+
+      <div class="result-grid">
+        <!-- Score Gauge -->
+        <div class="score-section">
+          <div class="score-gauge-wrap">
+            <svg class="score-gauge" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" />
+              <circle cx="100" cy="100" r="80" fill="none" stroke="url(#scoreGrad)" stroke-width="16"
+                stroke-linecap="round" stroke-dasharray="0 502" id="scoreArc" class="score-arc"
+                transform="rotate(-90 100 100)" />
+              <defs>
+                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1" />
+                  <stop offset="50%" stop-color="#8b5cf6" />
+                  <stop offset="100%" stop-color="#22d3ee" />
+                </linearGradient>
+              </defs>
+              <text x="100" y="95" text-anchor="middle" class="gauge-score" id="gaugeScore">0</text>
+              <text x="100" y="118" text-anchor="middle" class="gauge-label">ATS Score</text>
+            </svg>
+          </div>
+
+          <div class="score-breakdown">
+            <div class="score-bar-item">
+              <div class="score-bar-label">
+                <span>Keyword Match</span>
+                <span id="scoreKeyword">0/40</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" id="barKeyword" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="score-bar-item">
+              <div class="score-bar-label">
+                <span>Role Relevancy</span>
+                <span id="scoreRelevancy">0/40</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill relevancy" id="barRelevancy" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="score-bar-item">
+              <div class="score-bar-label">
+                <span>Format Simplicity</span>
+                <span id="scoreFormat">0/20</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill format" id="barFormat" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Feedback + Keywords -->
+        <div class="result-details">
+          <div class="feedback-card">
+            <h3 class="detail-title">AI Feedback</h3>
+            <p class="feedback-text" id="resultFeedback">Your resume has been optimized.</p>
+          </div>
+
+          <div class="keywords-grid">
+            <div class="keyword-box matched">
+              <h4 class="keyword-title">✅ Matched Keywords</h4>
+              <div class="keyword-tags" id="matchedKeywords"></div>
+            </div>
+            <div class="keyword-box missing">
+              <h4 class="keyword-title">⚠️ Missing Keywords</h4>
+              <div class="keyword-tags" id="missingKeywords"></div>
+            </div>
+          </div>
+
+          <div class="sections-found">
+            <span class="sections-badge" id="sectionsFound">0 blocks rewritten</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <a class="btn-download" id="btnDownload" href="#" download>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3v10M5 9l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M3 17h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          Download Optimized Resume
+        </a>
+        <button class="btn-ghost" id="btnReset">↩ Optimize Another Resume</button>
+      </div>
+    </section>
+
+    <!-- ====== ERROR STATE ====== -->
+    <div class="error-toast hidden" id="errorToast" role="alert">
+      <span class="error-icon">⚠</span>
+      <span class="error-message" id="errorMessage">Something went wrong.</span>
+      <button class="error-close" id="errorClose">✕</button>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>ResumeAI · Surgical rewrite powered by <a href="https://console.groq.com" target="_blank" rel="noopener">Groq</a>
+      · Zero format loss guarantee</p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-multipart
+python-docx
+PyMuPDF
+beautifulsoup4
+requests
+groq
+python-dotenv
+httpx
+aiofiles
