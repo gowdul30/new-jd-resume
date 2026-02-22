@@ -10,6 +10,7 @@ in the PDF renderer. We default to Helvetica/Times as closest alternatives.
 """
 
 import io
+import re
 import fitz  # PyMuPDF
 from typing import Optional
 
@@ -17,19 +18,30 @@ from utils.text_utils import enforce_length_constraint
 
 
 # Keywords that signal the start of target sections
-SUMMARY_KEYWORDS = {"summary", "professional summary", "profile", "objective", "about me", "overview"}
-EXPERIENCE_KEYWORDS = {"experience", "work experience", "professional experience", "employment", "career"}
-STOP_KEYWORDS = {"education", "skills", "certifications", "projects", "awards", "references"}
+SUMMARY_KEYWORDS = {"summary", "professional summary", "profile", "objective", "about me", "overview", "executive summary"}
+EXPERIENCE_KEYWORDS = {"experience", "work experience", "professional experience", "employment", "career", "work history", "employment history"}
+STOP_KEYWORDS = {"education", "skills", "certifications", "projects", "awards", "references", "languages", "organizations", "links"}
 
 
 def _match_section(text: str) -> Optional[str]:
+    """Smart section detection using regex and fuzzy matching."""
     t = text.strip().lower()
-    if t in SUMMARY_KEYWORDS:
-        return "summary"
-    if t in EXPERIENCE_KEYWORDS:
-        return "experience"
-    if t in STOP_KEYWORDS:
-        return "stop"
+    # Remove symbols like " - ", " : ", etc.
+    t = re.sub(r'[^a-z0-9 ]', ' ', t).strip()
+    
+    if not t or len(t) > 50:
+        return None
+
+    summary_triggers = {"summary", "profile", "objective", "about", "overview"}
+    experience_triggers = {"experience", "history", "employment", "work", "career"}
+    stop_triggers = {"education", "skills", "certs", "projects", "awards", "references", "languages", "links", "interests"}
+
+    # Use set intersection for word-level matching
+    words = set(t.split())
+    if words & summary_triggers: return "summary"
+    if words & experience_triggers: return "experience"
+    if words & stop_triggers: return "stop"
+    
     return None
 
 
@@ -63,33 +75,32 @@ def extract_pdf_sections(file_path_or_bytes) -> dict:
     all_text_parts = []
     current_section = None
 
+    print(f"[PDF Engine] Starting extraction for document...")
     for page_num in range(len(doc)):
         page = doc[page_num]
+        # Use "dict" but focus on spans within lines to preserve granular formatting
         blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
 
         for block_idx, block in enumerate(blocks):
-            if block.get("type") != 0:  # 0 = text block
-                continue
+            if block.get("type") != 0: continue
 
             for line in block.get("lines", []):
-                for span in line.get("spans", []):
-                    text = span.get("text", "").strip()
-                    if not text:
-                        continue
+                # Join spans to check the line text for a header
+                line_text = "".join(s.get("text", "") for s in line.get("spans", [])).strip()
+                match = _match_section(line_text)
+                
+                if match:
+                    print(f"[PDF Engine] Detected section change: '{line_text}' -> {match}")
+                    current_section = match if match != "stop" else None
+                    continue # Skip the header text itself
 
-                    all_text_parts.append(text)
+                # Only collect spans if we are inside a target section
+                if current_section:
+                    for span in line.get("spans", []):
+                        text = span.get("text", "")
+                        if not text.strip(): continue
 
-                    # Check if this span is a section heading
-                    section_match = _match_section(text)
-                    if section_match == "stop":
-                        current_section = None
-                        continue
-                    elif section_match in ("summary", "experience"):
-                        current_section = section_match
-                        continue
-
-                    if current_section in ("summary", "experience"):
-                        rect = span["bbox"]  # (x0, y0, x1, y1)
+                        rect = span["bbox"]
                         sections[current_section].append({
                             "page": page_num,
                             "rect": list(rect),
@@ -98,7 +109,18 @@ def extract_pdf_sections(file_path_or_bytes) -> dict:
                             "fontname": span.get("font", "Helvetica"),
                             "color": span.get("color", 0),
                             "block_idx": block_idx,
+                            "origin": span.get("origin", (rect[0], rect[3]))
                         })
+                        all_text_parts.append(text)
+                else:
+                    # Still collect all text for scoring
+                    for span in line.get("spans", []):
+                        all_text_parts.append(span.get("text", ""))
+
+    doc.close()
+    sections["all_text"] = "\n".join(all_text_parts)
+    print(f"[PDF Engine] Done. Found {len(sections['summary'])} summary spans and {len(sections['experience'])} experience spans.")
+    return sections
 
     doc.close()
     sections["all_text"] = "\n".join(all_text_parts)
@@ -148,6 +170,7 @@ def inject_pdf_rewrites(
         entries = sections.get(section_name, [])
         new_texts = rewrites.get(section_name, [])
 
+        # Add redactions for all entries in this section
         for i, entry in enumerate(entries):
             if i >= len(new_texts):
                 break
@@ -164,12 +187,12 @@ def inject_pdf_rewrites(
             # Use white fill to blank the area cleanly
             page.add_redact_annot(rect, fill=(1, 1, 1))
 
-        # Apply all redactions on each page before inserting new text
-        for page in doc:
-            page.apply_redacts(images=fitz.PDF_REDACT_IMAGE_NONE)
+    # Apply all redactions on each page before inserting new text
+    for page in doc:
+        page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
 
-    # Step 2: Re-open to re-get pages (apply_redacts modifies in-place)
-    # Re-extract to get updated state — actually we insert AFTER apply_redacts
+    # Step 2: Re-open to re-get pages (apply_redactions modifies in-place)
+    # Re-extract to get updated state — actually we insert AFTER apply_redactions
     # So we reload the document from bytes
     buf = io.BytesIO()
     doc.save(buf)
@@ -209,8 +232,8 @@ def inject_pdf_rewrites(
             g = ((raw_color >> 8) & 0xFF) / 255.0
             b = (raw_color & 0xFF) / 255.0
 
-            # Insert text at the top-left origin of the original span
-            origin = fitz.Point(rect.x0, rect.y1)  # baseline = y1 of bounding box
+            # Insert text at the exact origin of the original span to minimize jitter
+            origin = entry.get("origin", (rect.x0, rect.y1))
             page.insert_text(
                 origin,
                 new_text,
@@ -223,6 +246,7 @@ def inject_pdf_rewrites(
     doc2.save(final_buf)
     final_buf.seek(0)
     doc2.close()
+    print(f"[PDF] Injected {len(rewrites.get('summary', []))} summary and {len(rewrites.get('experience', []))} experience updates.")
     return final_buf.read()
 
 

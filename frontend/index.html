@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResumeAI — Zero-Format-Loss Resume Tailor & ATS Scorer</title>
+  <title>ResumeAI — Deep Resume Analysis & ATS Optimization</title>
   <meta name="description"
-    content="Upload your resume, paste a job description, and get a surgically optimized resume with an ATS match score — without losing a single format element." />
+    content="Upload your resume, paste a job description, and get a deep AI analysis with specific suggestions to beat the ATS and improve your impact." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -38,17 +38,17 @@
       </svg>
       <span class="logo-text">ResumeAI</span>
     </div>
-    <div class="header-badge">Powered by Groq · llama-3.3-70b</div>
+    <div class="header-badge">AI Career Intelligence · llama-3.3-70b</div>
   </header>
 
   <main class="main">
 
     <!-- ====== HERO ====== -->
     <section class="hero" id="section-hero">
-      <div class="hero-tag">Zero-Format-Loss Technology</div>
-      <h1 class="hero-title">Tailor Your Resume.<br /><span class="gradient-text">Beat the ATS.</span></h1>
-      <p class="hero-sub">Upload your resume, paste the job description — our AI surgically rewrites your content while
-        preserving every font, margin, and layout detail.</p>
+      <div class="hero-tag">Deep Recruitment Analysis</div>
+      <h1 class="hero-title">Optimize Your Profile.<br /><span class="gradient-text">Master the ATS.</span></h1>
+      <p class="hero-sub">Upload your resume and the job description — our AI identifies skill gaps and provides
+        precision-engineered suggestions to elevate your candidacy.</p>
     </section>
 
     <!-- ====== UPLOAD STATE ====== -->
@@ -120,7 +120,7 @@
 
       <div class="submit-row">
         <button class="btn-primary" id="btnOptimize" disabled>
-          <span class="btn-text">⚡ Optimize &amp; Score Resume</span>
+          <span class="btn-text">⚡ Analyze & Score Resume</span>
           <span class="btn-arrow">→</span>
         </button>
         <p class="submit-hint" id="submitHint">Upload a resume and add a job description to get started</p>
@@ -199,6 +199,15 @@
             </svg>
           </div>
 
+          <div class="prospective-badge hidden" id="prospectiveBadge">
+            <div class="pb-accent"></div>
+            <div class="pb-content">
+              <span class="pb-label">Prospective Score</span>
+              <span class="pb-value" id="prospectiveScore">0</span>
+            </div>
+            <div class="pb-hint">Estimated score if you apply all suggested rewrites</div>
+          </div>
+
           <div class="score-breakdown">
             <div class="score-bar-item">
               <div class="score-bar-label">
@@ -249,21 +258,31 @@
           </div>
 
           <div class="sections-found">
-            <span class="sections-badge" id="sectionsFound">0 blocks rewritten</span>
+            <span class="sections-badge" id="sectionsFound">0 blocks analyzed</span>
           </div>
         </div>
       </div>
 
+      <!-- Suggestions Section -->
+      <div class="suggestions-container" id="suggestionsContainer">
+        <div class="suggestion-group">
+          <h3 class="detail-title">💡 Missing Skills from JD</h3>
+          <div class="keyword-tags" id="analysisMissingSkills"></div>
+        </div>
+
+        <div class="suggestion-group">
+          <h3 class="detail-title">✨ Recommended Summary Improvements</h3>
+          <div id="summarySuggestionsList" class="suggestions-list"></div>
+        </div>
+
+        <div class="suggestion-group">
+          <h3 class="detail-title">🚀 Experience Optimization Suggestions</h3>
+          <div id="experienceSuggestionsList" class="suggestions-list"></div>
+        </div>
+      </div>
+
       <div class="result-actions">
-        <a class="btn-download" id="btnDownload" href="#" download>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 3v10M5 9l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" />
-            <path d="M3 17h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-          Download Optimized Resume
-        </a>
-        <button class="btn-ghost" id="btnReset">↩ Optimize Another Resume</button>
+        <button class="btn-ghost" id="btnReset">↩ Analyze Another Resume</button>
       </div>
     </section>
 
@@ -277,8 +296,8 @@
   </main>
 
   <footer class="footer">
-    <p>ResumeAI · Surgical rewrite powered by <a href="https://console.groq.com" target="_blank" rel="noopener">Groq</a>
-      · Zero format loss guarantee</p>
+    <p>ResumeAI · Deep Analysis powered by <a href="https://console.groq.com" target="_blank" rel="noopener">Groq</a>
+      · Your personal AI recuritment consultant</p>
   </footer>
 
   <script src="./app.js"></script>
