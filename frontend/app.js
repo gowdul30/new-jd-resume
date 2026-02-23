@@ -262,19 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Modern Comparison Widgets ---
-    // 1. Keywords Alignment
-    const matchedKWrap = $('matchedKeywordsContainer');
-    const missingKWrap = $('missingKeywordsContainer');
-    if (matchedKWrap && score.top_matched_keywords) {
-      matchedKWrap.innerHTML = score.top_matched_keywords.map(kw =>
-        `<span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium">${kw}</span>`
-      ).join('') || '<span class="text-slate-500 italic">None identified</span>';
-    }
-    if (missingKWrap && score.missing_keywords) {
-      missingKWrap.innerHTML = score.missing_keywords.map(kw =>
-        `<span class="px-2 py-1 rounded bg-orange-500/10 text-orange-500 border border-orange-500/20 font-medium">${kw}</span>`
-      ).join('') || '<span class="text-slate-500 italic">None identified</span>';
-    }
+    // --- Modern Comparison Widgets ---
+    // (Keyword Alignment removed)
 
     // 2. Skills Comparison (Existing vs Missing)
     const existingSWrap = $('existingSkillsContainer');
@@ -299,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest flex items-center gap-2">
                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> Optimized Summary
               </p>
-              <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-indigo-500/5 p-3 rounded-lg border border-indigo-500/10">${s.suggested}</p>
+              <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-indigo-500/5 p-3 rounded-lg border border-indigo-500/10">${s.suggested || s}</p>
            </div>
         </div>
       `).join('') || '<p class="text-center text-slate-500 italic">No summary optimizations needed.</p>';
@@ -315,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-2">
                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span> Suggested Optimization
                 </p>
-                <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-cyan-500/5 p-3 rounded-lg border border-cyan-500/10">"${s.suggested}"</p>
+                <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-cyan-500/5 p-3 rounded-lg border border-cyan-500/10">"${s.suggested || s}"</p>
              </div>
           </div>
         `).join('');
@@ -458,14 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (prContainer) prContainer.classList.add('hidden');
 
       // Reset comparison containers
-      const containers = [
-        'matchedKeywordsContainer',
-        'missingKeywordsContainer',
-        'existingSkillsContainer',
-        'missingSkillsContainer',
-        'summarySuggestionsContainer',
-        'experienceSuggestionsContainer'
-      ];
+      const containers = ['existingSkillsContainer', 'missingSkillsContainer', 'summarySuggestionsContainer', 'experienceSuggestionsContainer'];
       containers.forEach(id => {
         const el = $(id);
         if (el) el.innerHTML = '<span class="text-slate-500 italic">Analyzing...</span>';
