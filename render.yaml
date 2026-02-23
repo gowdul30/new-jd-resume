@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: resume-tailor
+    runtime: docker
+    plan: free
+    region: oregon # or your preferred region
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false # You will set this in the Render Dashboard
+      - key: ALLOWED_ORIGINS
+        value: "*" # Change this to your live URL after deployment for better security
+      - key: PORT
+        value: 8000
