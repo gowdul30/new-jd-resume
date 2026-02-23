@@ -261,6 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
       D.scoreArc.setAttribute('stroke-dashoffset', offset);
     }
 
+    // --- Prospective Score Display ---
+    const prContainer = $('prospective-container');
+    const prScoreDisp = $('prospectiveScoreDisplay');
+    if (prContainer && prScoreDisp && score.prospective_score) {
+      prContainer.classList.remove('hidden');
+      animateCounter(prScoreDisp, 0, score.prospective_score, 1200);
+    }
+
     // --- Modern Comparison Widgets ---
     // --- Modern Comparison Widgets ---
     // (Keyword Alignment removed)
@@ -279,20 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ).join('') || '<span class="text-emerald-500 italic">✓ No missing skills found</span>';
     }
 
-    // 3. Summary Optimization Comparison
-    const summaryWrap = $('summarySuggestionsContainer');
-    if (summaryWrap && analysis.summary_suggestions) {
-      summaryWrap.innerHTML = analysis.summary_suggestions.map(s => `
-        <div class="glassmorphism rounded-xl p-5 border dark:border-slate-800 flex flex-col gap-4">
-           <div class="space-y-2">
-              <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest flex items-center gap-2">
-                 <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> Optimized Summary
-              </p>
-              <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-indigo-500/5 p-3 rounded-lg border border-indigo-500/10">${s.suggested || s}</p>
-           </div>
-        </div>
-      `).join('') || '<p class="text-center text-slate-500 italic">No summary optimizations needed.</p>';
-    }
+    // 3. (Summary Suggestions removed)
 
     // 4. Experience Comparisons (Comparative View)
     const expSuggestionsWrap = $('experienceSuggestionsContainer');
@@ -300,11 +295,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (analysis.experience_suggestions.length > 0) {
         expSuggestionsWrap.innerHTML = analysis.experience_suggestions.map(s => `
           <div class="glassmorphism rounded-xl p-5 border dark:border-slate-800 flex flex-col gap-4">
-             <div class="space-y-2">
-                <p class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-2">
-                   <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span> Suggested Optimization
-                </p>
-                <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-cyan-500/5 p-3 rounded-lg border border-cyan-500/10">"${s.suggested || s}"</p>
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Current Version
+                   </p>
+                   <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-4">${s.original || 'No original text'}</p>
+                </div>
+                <div class="space-y-2">
+                   <p class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span> Suggested Optimization
+                   </p>
+                   <p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium bg-cyan-500/5 p-3 rounded-lg border border-cyan-500/10">${s.suggested}</p>
+                </div>
              </div>
           </div>
         `).join('');
@@ -447,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (prContainer) prContainer.classList.add('hidden');
 
       // Reset comparison containers
-      const containers = ['existingSkillsContainer', 'missingSkillsContainer', 'summarySuggestionsContainer', 'experienceSuggestionsContainer'];
+      const containers = ['existingSkillsContainer', 'missingSkillsContainer', 'experienceSuggestionsContainer'];
       containers.forEach(id => {
         const el = $(id);
         if (el) el.innerHTML = '<span class="text-slate-500 italic">Analyzing...</span>';

@@ -20,10 +20,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS — allow frontend dev on any origin
+# CORS — allow origins from environment or default to *
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,7 +35,10 @@ app.add_middleware(
 app.include_router(optimize_router, prefix="/api")
 
 # Serve frontend static files
-FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+# In Docker, the path is relative to the workdir /app
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
+
 if os.path.exists(FRONTEND_DIR):
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
@@ -44,6 +49,9 @@ if os.path.exists(FRONTEND_DIR):
     # Catch-all for SPA routing
     @app.get("/{full_path:path}")
     async def spa_fallback(full_path: str):
+        if full_path.startswith("api/"):
+            return {"error": "API route not found"}
+            
         file_path = os.path.join(FRONTEND_DIR, full_path)
         if os.path.exists(file_path) and os.path.isfile(file_path):
             return FileResponse(file_path)
@@ -57,3 +65,8 @@ if os.path.exists(FRONTEND_DIR):
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "model": "llama-3.3-70b-versatile", "provider": "Groq"}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

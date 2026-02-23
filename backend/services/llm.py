@@ -24,23 +24,22 @@ def get_client() -> Groq:
         _client = Groq(api_key=api_key)
     return _client
 
-REWRITE_SYSTEM_PROMPT = """You are a professional resume writer and ATS optimization expert.
-Your job is to analyze a resume against a job description and provide specific suggestions for improvement.
+REWRITE_SYSTEM_PROMPT = """You are an elite ATS Optimization Architect and Expert Resume Strategist.
+Your goal is to transform a standard resume into a high-performance, ATS-dominant document that guarantees a 95+ match score.
 
-STRICT RULES — NEVER VIOLATE:
-1. SURGICAL BULLET POINT OPTIMIZATIONS: Optimize ALL suitable experiences across the ENTIRE resume (not just first page) that need rewriting to align with the JD. Also add summary section changes according to the JD.
-2. OPTIMIZED OUTPUT ONLY: Provide ONLY the optimized "suggested" version for each section that incorporates JD keywords and action verbs. Do not provide the original text.
-3. SKILLS ANALYSIS: 
-   - Identify "existing_skills": Hard skills and technologies explicitly found in the resume.
-   - Identify "missing_skills": Critical hard skills and technologies in the JD that are NOT in the resume.
-4. ANTI-HALLUCINATION: Do NOT add any new employers, job titles, or companies.
-5. NATURAL TONE: The suggested text must sound human-written.
-6. OUTPUT FORMAT: Return ONLY valid JSON. No explanation, no markdown. 
+STRICT AGGRESSIVE RULES — NEVER VIOLATE:
+1. TOTAL SURGICAL SWEEP: You must evaluate and aggressively optimize EVERY experience block across the ENTIRE resume provided. No section or page is to be ignored.
+2. STRICT EXPERIENCE FOCUS: Focus EXCLUSIVELY on "experience_suggestions". Do NOT provide summary optimizations.
+3. ATS KEYWORD SATURATION: Suture the most critical technical and soft skills from the JD directly into the experience bullet points. Do not just "add" them; weave them into high-impact value statements.
+4. QUANTITATIVE DOMINANCE (KPIs): Force the inclusion of measurable results (e.g., "Increased X by 25%", "Reduced latency by 400ms", "Managed $2M budget"). If numbers aren't present in the original, infer high-impact context where possible without fabricating employers.
+5. AGGRESSIVE REPHRASING: Replace passive language with powerful action verbs. Ensure every bullet point starts with a strong verb and follows the Google XYZ formula: "Accomplished [X] as measured by [Y], by doing [Z]".
+6. COMPARATIVE OUTPUT: For each chunk, provide the "original" text and the "suggested" high-performance version.
+7. ANTI-HALLUCINATION: Stay within the bounds of the user's actual career history (Companies/Dates/Titles).
+8. OUTPUT FORMAT: Return ONLY valid JSON. 
    {
      "existing_skills": ["Skill A", "Skill B"],
      "missing_skills": ["Skill X", "Skill Y"],
-     "summary_suggestions": [{"suggested": "..."}],
-     "experience_suggestions": [{"suggested": "..."}]
+     "experience_suggestions": [{"original": "...", "suggested": "..."}]
    }"""
 
 SCORING_SYSTEM_PROMPT = """You are an ATS (Applicant Tracking System) expert evaluator and optimization strategist.
@@ -61,21 +60,23 @@ def rewrite_sections(resume_sections: dict, jd_text: str) -> dict:
         return {"missing_skills": [], "summary_suggestions": [], "experience_suggestions": []}
 
     user_prompt = f"""
-RESUME SECTIONS:
+ACTION: PERFORM AGGRESSIVE SURGICAL OPTIMIZATION
 
---- SUMMARY ---
-{json.dumps(summary_texts, indent=2)}
+I am providing you with the full content of a resume experience section and a target job description.
 
---- EXPERIENCE ---
-{json.dumps(experience_texts, indent=2)}
-
---- JOB DESCRIPTION ---
+--- TARGET JOB DESCRIPTION ---
 {jd_text[:4000]}
 
-TASK: 
-1. Identify missing skills from the JD.
-2. Suggest rewrites for the summary and experience blocks to weave in missing keywords.
-Return ONLY JSON.
+--- RESUME EXPERIENCE SECTIONS ---
+{json.dumps(experience_texts, indent=2)}
+
+TASK REQUIREMENTS:
+1. Audit the experience blocks against the JD. Identify every single opportunity where technical keywords can be injected.
+2. Rewrite each block using the "Google XYZ" formula or high-impact "Situation-Task-Action-Result" (STAR) method.
+3. Ensure every suggestion is a MAJOR upgrade over the original in terms of ATS readability and keyword density.
+4. Identify the top 'existing_skills' and the critical 'missing_skills' required for the candidate to be a top-tier match.
+
+Return ONLY the completed JSON analysis.
 """
 
     response = client.chat.completions.create(
@@ -99,7 +100,7 @@ Return ONLY JSON.
         if match:
             result = json.loads(match.group())
         else:
-            result = {"missing_skills": [], "summary_suggestions": [], "experience_suggestions": []}
+            result = {"missing_skills": [], "experience_suggestions": []}
 
     return result
 
